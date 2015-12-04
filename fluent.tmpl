@@ -1,0 +1,23 @@
+## File input
+## read docker logs with tag=docker.container
+
+{{range $key, $value := .}}
+{{if eq $value.Name "shipyard-controller" "shipyard-swarm-manager"}}
+<source>
+  type tail
+  format json
+  time_format %Y-%m-%dT%H:%M:%S
+  time_key time
+  path /var/lib/docker/containers/{{ $value.ID }}/{{ $value.ID }}-json.log
+  pos_file /var/log/fluentd/fluentd.log.pos
+  tag docker.container.{{$value.Name}}
+  rotate_wait 5
+</source>
+<match docker.container.{{$value.Name}}>
+  type file 
+  path /var/log/fluentd/{{$value.Name}}/log
+  time_slice_format %Y%m%d
+  append true
+</match>
+{{end}}
+{{end}}
