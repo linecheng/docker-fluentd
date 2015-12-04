@@ -5,7 +5,7 @@
 By running this container with the following command, one can aggregate the logs of Docker containers running on the same host:
 
 ```
-docker run -d -v /var/lib/docker/containers:/var/lib/docker/containers kiyoto/docker-fluentd
+sudo docker run -d --name fluentd -v /var/lib/docker/containers:/var/lib/docker/containers -v /Containers-APP/fluentd/fluentd.conf:/etc/fluent/fluent.conf -v /var/log/fluentd:/var/log/fluentd kiyoto/docker-fluentd
 ```
 
 By default, the container logs are stored in /var/log/docker/yyyyMMdd.log inside this logging container. The data is buffered, so you may also see buffer files like /var/log/docker/20141114.b507c71e6fe540eab.log where "b507c71e6fe540eab" is a hash identifier. You can mount that container volume back to host. Also, by modifying `fluent.conf` and rebuilding the Docker image, you can stream up your logs to Elasticsearch, Amazon S3, MongoDB, Treasure Data, etc.
@@ -34,30 +34,7 @@ right before "ENTRYPOINT". This installs the output plugin for Elasticsearch. Th
 
 
 ```
-<source>
-  type tail
-  path /var/lib/docker/containers/*/*-json.log
-  pos_file /var/log/fluentd-docker.pos
-  time_format %Y-%m-%dT%H:%M:%S 
-  tag docker.*
-  format json
-</source>
 
-<match docker.var.lib.docker.containers.*.*.log>
-  type record_reformer
-  container_id ${tag_parts[5]}
-  tag docker.all
-</match>
-
-<match docker.all>
-  type elasticsearch
-  log_level info
-  host YOUR_ES_HOST
-  port YOUR_ES_PORT
-  include_tag_key true 
-  logstash_format true
-  flush_intercal 5s
-</match>
 ```
 
 ## What's Next?
