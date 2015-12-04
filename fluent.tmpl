@@ -2,7 +2,7 @@
 ## read docker logs with tag=docker.container
 
 {{range $key, $value := .}}
-{{if eq $value.Name "shipyard-controller" "shipyard-swarm-manager"}}
+{{if eq $value.Name "your-container-name1" "your-container-name2"}}
 <source>
   type tail
   format json
